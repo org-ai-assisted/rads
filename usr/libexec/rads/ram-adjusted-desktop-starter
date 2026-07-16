@@ -6,6 +6,9 @@
 #set -x
 set -o pipefail
 set -o errtrace
+## style-ok: no-strict -- this script deliberately uses MANUAL error handling (trap
+## error_handler_rads) instead of 'set -o errexit'/'nounset'; it references unset variables
+## (e.g. $rads_debug) and tolerant commands by design, so enabling strict mode would break it.
 
 error_handler_rads() {
    echo "[${red}${bold}ERROR${reset}] \
@@ -135,6 +138,7 @@ ram-adjusted-desktop-starter() {
    [ -n "$rads_minimum_ram" ] || rads_minimum_ram="710"
    [ -n "$rads_start_display_manager" ] || rads_start_display_manager="1"
    [ -n "$rads_skip_ram_test" ] || rads_skip_ram_test="0"
+   [ -n "$rads_skip_gpu_test" ] || rads_skip_gpu_test="0"
    [ -n "$rads_wait" ] || rads_wait="1"
    [ -n "$rads_wait_seconds" ] || rads_wait_seconds="10"
    [ -n "$rads_no_switch_vt" ] || rads_no_switch_vt="0"
@@ -208,6 +212,29 @@ because there is only $total_ram MB total RAM. (A minimum of \
 $rads_minimum_ram MB total RAM is configured in /etc/rads.d/ \
 configuration folder.)"
          sleep 5
+         create_status_file_no_start_dm
+         exit 0
+      fi
+   fi
+
+   ## No GPU / DRM device: a Wayland compositor (labwc, started via greetd) cannot create a
+   ## backend without a DRM device and would spam 'Found 0 GPUs, cannot create backend' /
+   ## 'Failed to open any DRM device' in the journal, then fail. On a headless / GPU-less boot
+   ## (a server, or a VM with no virtual GPU) skip the graphical session entirely. 'nullglob' is
+   ## set above, so the glob yields nothing when /dev/dri is absent. Override: rads_skip_gpu_test=1.
+   if [ ! "$rads_skip_gpu_test" = "1" ]; then
+      gpu_present="0"
+      for drm_card in /dev/dri/card[0-9]* ; do
+         if [ -e "$drm_card" ]; then
+            gpu_present="1"
+            break
+         fi
+      done
+      if [ "$gpu_present" = "0" ]; then
+         echo "[${green}INFO${reset}] Not starting display manager \
+(graphical desktop environment) ('$rads_display_manager'), because no GPU / DRM device \
+(/dev/dri/card*) is present. A Wayland compositor needs one; this is expected on a headless \
+or GPU-less boot. (Override with rads_skip_gpu_test=1 in /etc/rads.d/ configuration folder.)"
          create_status_file_no_start_dm
          exit 0
       fi
