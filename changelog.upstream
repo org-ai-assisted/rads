@@ -1,9 +1,31 @@
+commit 7bb2b9625b2f952b717bba140ac97fd6d4af5c55
+Merge: 6e04425 fbbfccb
+Author: Patrick Schleizer <adrelanos@whonix.org>
+Date:   Tue Jul 21 06:50:17 2026 -0400
+
+    Merge remote-tracking branch 'github-kicksecure/master'
+
+commit 6e044254d07f1387686f954223f297f5866ae0cb
+Author: Patrick Schleizer <adrelanos@whonix.org>
+Date:   Tue Jul 21 10:39:30 2026 +0000
+
+    bumped changelog version
+
 commit d993493222496ac198c5109fc49f5d1481999318
 Merge: 0760aba 89aded5
 Author: Patrick Schleizer <adrelanos@whonix.org>
 Date:   Tue Jul 21 06:23:02 2026 -0400
 
     Merge remote-tracking branch 'refs/remotes/org-ai-assisted/master'
+
+commit fbbfccb36d876d1c849d2b55c54a9e019a2ffee9
+Merge: 0760aba 04583b7
+Author: Patrick Schleizer <adrelanos@whonix.org>
+Date:   Tue Jul 21 04:11:01 2026 -0400
+
+    Merge pull request #2 from org-ai-assisted/headless-no-gpu-skip-desktop
+
+    rads: skip the desktop on a GPU-less (headless) boot
 
 commit 89aded52a5788d60d49cd3a019955d12ece8ad9b
 Merge: 0760aba 04583b7
