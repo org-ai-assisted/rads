@@ -1,3 +1,56 @@
+commit d993493222496ac198c5109fc49f5d1481999318
+Merge: 0760aba 89aded5
+Author: Patrick Schleizer <adrelanos@whonix.org>
+Date:   Tue Jul 21 06:23:02 2026 -0400
+
+    Merge remote-tracking branch 'refs/remotes/org-ai-assisted/master'
+
+commit 89aded52a5788d60d49cd3a019955d12ece8ad9b
+Merge: 0760aba 04583b7
+Author: assisted-by-ai (Bot Account) (Machine Account) <228987186+assisted-by-ai@users.noreply.github.com>
+Date:   Wed Jul 15 23:46:24 2026 -0400
+
+    Merge pull request #1 from org-ai-assisted/headless-no-gpu-skip-desktop
+
+    rads: skip desktop on GPU-less boot (greetd/Wayland), reviewed
+
+commit 04583b70ed125e6fc39c7d7e344ae63e9e9fead9
+Author: assisted-by-ai <assisted-by-ai@users.noreply.github.com>
+Date:   Wed Jul 15 23:44:51 2026 -0400
+
+    rads: address ai-review -- limit GPU gate to greetd/Wayland + wait for DRM node
+
+    Two findings from ai-review (codex + claude) on the GPU gate:
+    - REGRESSION: the gate applied to ALL display managers, but an X11 DM (lightdm,
+      xdm, ...) can drive Xorg on the vesa/fbdev fallback with no /dev/dri (e.g. a
+      'nomodeset' boot), so gating it would wrongly skip a usable desktop. Restrict
+      the gate to the greetd/Wayland path (only a Wayland compositor needs DRM).
+    - BOOT RACE: a DRM driver (nvidia-drm, modular virtio-gpu/i915) can bind a few
+      seconds into boot, so a single instantaneous glob false-negatives on real GPU
+      hardware. Poll for a card node for up to rads_gpu_wait_seconds (default 5s)
+      before concluding headless.
+    (Pre-existing, out of scope, noted in review: no-VT systems skip rads.service via
+    its /dev/tty0 condition; root sources /usr/local/etc/rads.d/*.conf.)
+
+commit 7c009864f1eba087adf0de5aee3bef41cb7ea28f
+Author: assisted-by-ai <assisted-by-ai@users.noreply.github.com>
+Date:   Wed Jul 15 23:33:43 2026 -0400
+
+    rads: don't start the desktop when no GPU / DRM device (headless)
+
+    On a GPU-less boot (a server, or a VM with no virtual GPU) a Wayland compositor
+    (labwc, started via greetd) cannot create a backend and spams 'Found 0 GPUs,
+    cannot create backend' / 'Failed to open any DRM device' in the journal, then
+    fails. Add a GPU gate next to the existing RAM gate: if no /dev/dri/card* DRM
+    device is present, skip starting the display manager. Configurable via
+    rads_skip_gpu_test=1. (AI-Assisted; matches the script's existing idiom.)
+
+commit 0760aba35c45b4f55864803b6efd1535d2d928b5
+Author: Patrick Schleizer <adrelanos@whonix.org>
+Date:   Wed May 20 22:16:46 2026 +0000
+
+    bumped changelog version
+
 commit aac7edda008beb57d7de78c41fbeadc04f7dae53
 Author: Patrick Schleizer <adrelanos@whonix.org>
 Date:   Wed May 20 16:57:04 2026 -0400
